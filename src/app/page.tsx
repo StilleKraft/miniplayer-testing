@@ -1,6 +1,69 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import dynamic from "next/dynamic";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+
+export default function Page() {
+  const router = useRouter();
+
+  const SimpleViteComponent = dynamic(
+    () =>
+      import("http://localhost:3000/my-vite-esm-module.js").then(
+        (mod) => mod.SimpleViteComponent
+      ),
+    {
+      ssr: false,
+      loading: () => <p>Memuat CDN Vite Component...</p>,
+    }
+  );
+  const openPopup = () => {
+    const width = 420;
+    const height = 250;
+    const left = window.screen.width - width - 50;
+    const top = 50;
+
+    const specs = `
+    width=${width},
+    height=${height},
+    left=${left},
+    top=${top},
+    menubar=no,
+    toolbar=no,
+    location=no,
+    status=no,
+    resizable=yes,
+    scrollbars=yes
+  `;
+
+    const newWindow = window.open(
+      "http://player.rctiplus:3000/test",
+      "hahaPlayer",
+      specs
+    );
+    if (newWindow) newWindow.focus();
+  };
+
+  // Listen untuk pesan dari tab baru
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data.type === "functionComplete") {
+        console.log("Pesan diterima dari tab baru:", event.data.message);
+        console.log("Data:", event.data.data);
+
+        // Tampilkan notifikasi atau lakukan action lain
+        alert(`Tab baru selesai! Pesan: ${event.data.message}`);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
+
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -50,6 +113,9 @@ export default function Home() {
             Read our docs
           </a>
         </div>
+        {/* <TestComponent /> */}
+        {/* <ComponentKedua /> */}
+        <SimpleViteComponent message="Hello from Next.js!" />
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
         <a
@@ -82,6 +148,20 @@ export default function Home() {
           />
           Examples
         </a>
+
+        <button
+          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+          onClick={openPopup}
+        >
+          <Image
+            aria-hidden
+            src="/window.svg"
+            alt="Window icon"
+            width={16}
+            height={16}
+          />
+          Buka Popup
+        </button>
         <a
           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
           href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
@@ -97,6 +177,57 @@ export default function Home() {
           />
           Go to nextjs.org →
         </a>
+
+        <a
+          href="/child-app"
+          className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+        >
+          ini untuk buka child
+        </a>
+        <button
+          onClick={() => {
+            // Safari-compatible window opening
+            const newTab = window.open(
+              "/test",
+              "_blank",
+              "noopener=no,noreferrer=no"
+            );
+
+            // Safari fallback: jika window.close() tidak bekerja, gunakan timer
+            if (newTab) {
+              // Check if Safari
+              const isSafari = /^((?!chrome|android).)*safari/i.test(
+                navigator.userAgent
+              );
+
+              if (isSafari) {
+                // Safari: gunakan interval untuk check jika tab masih terbuka
+                const checkInterval = setInterval(() => {
+                  if (newTab.closed) {
+                    clearInterval(checkInterval);
+                    window.focus();
+                  }
+                }, 1000);
+
+                // Cleanup setelah 30 detik
+                setTimeout(() => {
+                  clearInterval(checkInterval);
+                }, 30000);
+              } else {
+                // Chrome/Firefox: gunakan method lama
+                setTimeout(() => {
+                  if (newTab && !newTab.closed) {
+                    newTab.close();
+                    window.focus();
+                  }
+                }, 5000);
+              }
+            }
+          }}
+          className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+        >
+          Open New Tab (Cross-Browser)
+        </button>
       </footer>
     </div>
   );

@@ -1,0 +1,5 @@
+{
+  "http://localhost:3000/my-vite-esm-module.es.js": { "integrity": "sha512-PsBM1oc655hUfGVQ/cNWtHp1dNbHTfcbJ7kbuA0d1ftwZ+FplC994UJJgrDGiSvW24CzAfXF+oZFcq4dpoSKyg==", "contentType": "application/javascript; charset=utf-8" },
+  "http://localhost:3000/my-vite-esm-module.js": { "integrity": "sha512-fRwRUJIAC/xTvNyB/JLdBhVcNPr3QYs8YqVJvg8htkmKB49dW9vxxsOILt1uRCMEA8DBq96RU7F6+lVY0KWXow==", "contentType": "application/javascript; charset=utf-8" },
+  "version": 1
+}
