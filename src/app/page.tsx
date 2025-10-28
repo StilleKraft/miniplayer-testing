@@ -38,7 +38,7 @@ export default function Page() {
   `;
 
     const newWindow = window.open(
-      "http://player.rctiplus:3000/test",
+      "https://video-vplus.rctiplus.com/test",
       "hahaPlayer",
       specs
     );
